@@ -1,0 +1,9 @@
+import {test} from 'node:test';import assert from 'node:assert/strict';import {maya,calculate,day,shift,valid,noon,moon,translate} from '../src/core.js';
+test('Smithsonian 2012 anchor',()=>{assert.deepEqual(maya('2012-12-21'),{long:'13.0.0.0.0',tzolkin:'4 Ajaw',haab:'3 K’ank’in',correlation:584283});});
+test('sexagenary anchor and 60 days',()=>{assert.equal(calculate('2000-01-07').sexagenary.name,'甲子');assert.equal(calculate('2000-03-07').sexagenary.name,'甲子');});
+test('leap year and year boundary',()=>{assert.equal(day('2024-03-01')-day('2024-02-28'),2);assert.equal(valid('1900-02-29'),false);assert.equal(day('2025-01-01')-day('2024-12-31'),1);});
+test('month/year navigation',()=>{assert.equal(shift('2024-01-31',1),'2024-02-29');assert.equal(shift('2024-12-31',1),'2025-01-31');assert.equal(shift('2024-02-29',12),'2025-02-28');});
+test('Vienna daylight saving',()=>{assert.equal(noon('2025-03-30').toISOString(),'2025-03-30T10:00:00.000Z');assert.equal(noon('2025-03-29').toISOString(),'2025-03-29T11:00:00.000Z');assert.equal(noon('2025-10-26').toISOString(),'2025-10-26T11:00:00.000Z');assert.equal(noon('2025-10-25').toISOString(),'2025-10-25T10:00:00.000Z');});
+test('AstroPixels January 2025 events within 3 minutes',()=>{let m=moon(new Date('2025-01-30T00:00Z'));assert.ok(Math.abs(m.previous-Date.parse('2025-01-29T12:36Z'))<180000);assert.ok(Math.abs(m.full-Date.parse('2025-01-13T22:27Z'))<180000);assert.ok(moon(new Date(+m.previous+60000)).age<.002);assert.ok(moon(m.full).light>.99);});
+test('past and future bounds',()=>{for(let d of ['1900-01-01','2100-12-31'])assert.ok(calculate(d).moon.age>=0);});
+test('language does not mutate calculation',()=>{let before=calculate('2025-01-01');for(let l of ['ja','de','both']){assert.ok(translate(l,'月','Mond'));assert.deepEqual(calculate('2025-01-01'),before);}});
